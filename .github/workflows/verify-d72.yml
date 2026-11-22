@@ -1,0 +1,26 @@
+name: Verify Polybrutus D72 exact science and Zenodo bibliography
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+jobs:
+  exact-d72:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact rational dependencies
+        run: python -m pip install sympy==1.14.0
+      - name: Primary exact Euclidean metric and ideal graph
+        run: python src/verify_d72.py
+      - name: Independent Fraction labelled squared distances
+        run: python tests/independent_d72.py
+      - name: Deterministic original JSON certificate unchanged
+        run: git diff --exit-code -- results/certificate_d72.json
+      - name: Validate D72 current structured parent DOI and bibliography
+        run: python src/check_zenodo_metadata.py
